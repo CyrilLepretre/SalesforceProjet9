@@ -13,16 +13,8 @@ trigger OrderTrigger on Order (before update, after update) {
 				accountsId.add(currentOrder.AccountId);
 			}
 		}
-		List<Account> accountsToUpdate = [SELECT Id, Chiffre_d_affaire__c FROM Account WHERE Id IN :accountsId];
-		for (Account currentAccount : accountsToUpdate) {
-			if (currentAccount.Chiffre_d_affaire__c != null) {
-				currentAccount.Chiffre_d_affaire__c += accountsIdWithAmmountToAdd.get(currentAccount.Id);
-			} else {
-				currentAccount.Chiffre_d_affaire__c = accountsIdWithAmmountToAdd.get(currentAccount.Id);
-			}
-			
-		}
-		update(accountsToUpdate);
+		// Update accounts using trigger handler
+		OrderTriggerHandler.updateAccountRevenu(accountsId, accountsIdWithAmmountToAdd);
 	} else {
 		// Check each order of the trigger and update NetAmount__c of each one before it's inserted
 		for (Order newOrder : Trigger.New) {
