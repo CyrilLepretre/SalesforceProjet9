@@ -69,6 +69,12 @@ private with sharing class UpdateAccountsRevenueScheduler_Test {
 		}
 		insert orderItemList;
 		update(orderList);
+
+		// To finish, update revenu of both accounts to 0, to override update done by the trigger
+		accountWith1order.Chiffre_d_affaire__c = 0;
+		update(accountWith1order);
+		accountWith100orders.Chiffre_d_affaire__c = 0;
+		update(accountWith100orders);
 	}
 
 	/*
@@ -77,12 +83,14 @@ private with sharing class UpdateAccountsRevenueScheduler_Test {
 	@isTest
 	static void given1orderOfPrice12_WhenUpdateAccountsByBatch_ThenUpdateAccountRevenuTo12(){
 		Test.startTest();
+		Account acAfterUpdateTo0 = [SELECT Id, Chiffre_d_affaire__c FROM Account WHERE Name = 'WithOne'];
+		System.assertEquals(0, acAfterUpdateTo0.Chiffre_d_affaire__c, 'The revenu should be 0 before the batch runs');
+		SchedulableContext sc = null;
 		UpdateAccountsRevenueScheduler updateScheduler = new UpdateAccountsRevenueScheduler();
-		String scheduleString = '0 0 23 * * ?';
-		system.schedule('Test Account Revenue Scheduler', scheduleString, updateScheduler);
+		updateScheduler.execute(sc);
+		Test.stopTest();
 		Account acAfterUpdate = [SELECT Id, Chiffre_d_affaire__c FROM Account WHERE Name = 'WithOne'];
 		System.assertEquals(12, acAfterUpdate.Chiffre_d_affaire__c,'The revenu should be 12');
-		Test.stopTest();
 	}
 
 	/*
@@ -91,11 +99,13 @@ private with sharing class UpdateAccountsRevenueScheduler_Test {
 	@isTest
 	static void given100orderOfPrice12_WhenUpdateAccountsByBatch_ThenUpdateAccountRevenuTo1200(){
 		Test.startTest();
+		Account acAfterUpdateTo0 = [SELECT Id, Chiffre_d_affaire__c FROM Account WHERE Name = 'WithOneHundred'];
+		System.assertEquals(0, acAfterUpdateTo0.Chiffre_d_affaire__c, 'The revenu should be 0 before the batch runs');
+		SchedulableContext sc = null;
 		UpdateAccountsRevenueScheduler updateScheduler = new UpdateAccountsRevenueScheduler();
-		String scheduleString = '0 0 23 * * ?';
-		system.schedule('Test Account Revenue Scheduler', scheduleString, updateScheduler);
+		updateScheduler.execute(sc);
+		Test.stopTest();
 		Account acAfterUpdate = [SELECT Id, Chiffre_d_affaire__c FROM Account WHERE Name = 'WithOneHundred'];
 		System.assertEquals(1200, acAfterUpdate.Chiffre_d_affaire__c,'The revenu should be 1200');
-		Test.stopTest();
 	}
 }
