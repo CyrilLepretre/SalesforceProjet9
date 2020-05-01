@@ -28,9 +28,6 @@ global class UpdateAccountsRevenueBatch implements Database.Batchable<sObject> {
 		for (Account account : scope) {
 			if (totalAmountByAccountId.containsKey(account.Id)) {
 				account.Chiffre_d_affaire__c = totalAmountByAccountId.get(account.Id);
-			} else {
-				// No order for this account, revenu update to 0
-				account.Chiffre_d_affaire__c = 0.0;
 			}
 		}
 		update scope;
