@@ -1,7 +1,5 @@
-<apex:page controller="MyTeamOrdersController" >
+<apex:page controller="MyTeamOrdersController" lightningStylesheets="true">
 	<div>
-		<h1>
-			Sum of my team orders: <apex:outputText value="{!SumOders}" />
-		</h1>
+		Sum of my team orders: <apex:outputText value="{!SumOders}" />
 	</div>
 </apex:page>
