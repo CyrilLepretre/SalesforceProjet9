@@ -27,7 +27,7 @@ global class UpdateAccountsRevenueBatch implements Database.Batchable<sObject> {
 		// Then loop in scope accounts list to update revenue based on values in the totalAmountByAccountId map
 		for (Account account : scope) {
 			if (totalAmountByAccountId.containsKey(account.Id)) {
-				account.Chiffre_d_affaire__c = totalAmountByAccountId.get(account.Id);
+				account.Revenue__c = totalAmountByAccountId.get(account.Id);
 			}
 		}
 		update scope;
