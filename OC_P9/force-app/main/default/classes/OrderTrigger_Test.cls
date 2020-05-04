@@ -57,7 +57,7 @@ private with sharing class OrderTrigger_Test {
 		// Insert of 1 item to the order
 		OrderItem oi1 = new OrderItem(OrderId = o1.Id, PricebookEntryId = pbe.Id, Quantity=1, UnitPrice = 550);
 		insert oi1;
-		o1.Status = 'Activated';
+		o1.Status = 'Ordered';
 		update o1; // Generates an update for the trigger to be launched
 		Test.stopTest();
 		Account acAfterUpdate = [SELECT Id, Revenue__c FROM Account WHERE Name = 'Without'];
@@ -65,10 +65,32 @@ private with sharing class OrderTrigger_Test {
 	}
 
 	/*
-	Test with 1 order of 550€ added to an account with a previously revenu of 2000€
+	Test with 1 order of 550€ added to an account with a previously revenu of 2000€ and command passed to Ordered
 	*/
 	@isTest
 	static void given1orderOfPrice550_WhenInsertNewOrderToAccountWithRevenuOf2000_ThenUpdateAccountRevenuTo2550(){
+		Account ac = [SELECT Id, Revenue__c FROM Account WHERE Name = 'With'];
+		PricebookEntry pbe = [SELECT Id, Pricebook2Id FROM PricebookEntry WHERE UnitPrice = 550];
+		System.assertEquals(2000, ac.Revenue__c,'The revenu should be Null');
+		Test.startTest();
+		// Insert of 1 order of price 550
+		Order o1 = new Order(AccountId = ac.Id, Status = 'Draft', Pricebook2Id = pbe.Pricebook2Id, EffectiveDate = date.today());
+		insert o1;
+		// Insert of 1 item to the order
+		OrderItem oi1 = new OrderItem(OrderId = o1.Id, PricebookEntryId = pbe.Id, Quantity=1, UnitPrice = 550);
+		insert oi1;
+		o1.Status = 'Ordered';
+		update o1; // Generates an update for the trigger to be launched
+		Test.stopTest();
+		Account acAfterUpdate = [SELECT Id, Revenue__c FROM Account WHERE Name = 'With'];
+		System.assertEquals(2550, acAfterUpdate.Revenue__c,'The revenu should be 2550');
+	}
+
+	/*
+	Test with 1 order of 550€ added to an account with a previously revenu of 2000€ but command not passed to 'Ordered'
+	*/
+	@isTest
+	static void given1orderOfPrice550_WhenInsertNewOrderToAccountWithRevenuOf2000_ThenAccountRevenuStill2000(){
 		Account ac = [SELECT Id, Revenue__c FROM Account WHERE Name = 'With'];
 		PricebookEntry pbe = [SELECT Id, Pricebook2Id FROM PricebookEntry WHERE UnitPrice = 550];
 		System.assertEquals(2000, ac.Revenue__c,'The revenu should be Null');
@@ -83,7 +105,7 @@ private with sharing class OrderTrigger_Test {
 		update o1; // Generates an update for the trigger to be launched
 		Test.stopTest();
 		Account acAfterUpdate = [SELECT Id, Revenue__c FROM Account WHERE Name = 'With'];
-		System.assertEquals(2550, acAfterUpdate.Revenue__c,'The revenu should be 2550');
+		System.assertEquals(2000, acAfterUpdate.Revenue__c,'The revenu should be 2000');
 	}
 
 	/*
@@ -100,7 +122,7 @@ private with sharing class OrderTrigger_Test {
 		// Insert of 1 item to the order
 		OrderItem oi1 = new OrderItem(OrderId = o1.Id, PricebookEntryId = pbe.Id, Quantity=1, UnitPrice = 550);
 		insert oi1;
-		o1.Status = 'Activated';
+		o1.Status = 'Ordered';
 		update o1; // Generates an update for the trigger to be launched
 		Test.stopTest();
 		Account acAfterUpdate = [SELECT Id FROM Account WHERE Name = 'Without'];
@@ -126,8 +148,8 @@ private with sharing class OrderTrigger_Test {
 		OrderItem oi1 = new OrderItem(OrderId = o1.Id, PricebookEntryId = pbe.Id, Quantity=1, UnitPrice = 550);
 		OrderItem oi2 = new OrderItem(OrderId = o2.Id, PricebookEntryId = pbe.Id, Quantity=1, UnitPrice = 550);
 		insert new OrderItem[] {oi1, oi2};
-		o1.Status = 'Activated';
-		o2.Status = 'Activated';
+		o1.Status = 'Ordered';
+		o2.Status = 'Ordered';
 		update orderList; // Generates an update for the trigger to be launched
 		Test.stopTest();
 		Account acAfterUpdate = [SELECT Id, Revenue__c FROM Account WHERE Name = 'Without'];
