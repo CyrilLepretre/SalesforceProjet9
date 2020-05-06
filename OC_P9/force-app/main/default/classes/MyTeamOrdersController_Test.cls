@@ -11,11 +11,14 @@ private with sharing class MyTeamOrdersController_Test {
 	@testSetup
 	static void init() {
 		// First, insert roles that are required to create users
-		UserRole salesManagerRole1 = [SELECT Id FROM UserRole where DeveloperName='Sales_manager_1'];
-		UserRole salesManagerRole2 = [SELECT Id FROM UserRole where DeveloperName='Sales_manager_2'];
-		UserRole salesRepRole1 = [SELECT Id FROM UserRole where DeveloperName='Sales_rep_1'];
-		UserRole salesRepRole2 = [SELECT Id FROM UserRole where DeveloperName='Sales_rep_2'];
-		UserRole salesRepRole3 = [SELECT Id FROM UserRole where DeveloperName='Sales_rep_3'];
+
+		UserRole salesManagerRole1 = New UserRole(Name = 'Sales Manager Test 1');
+		UserRole salesManagerRole2 = New UserRole(Name = 'Sales Manager Test 2');
+		insert new UserRole[]{salesManagerRole1, salesManagerRole2};
+		UserRole salesRepRole1 = New UserRole(Name = 'Sales Rep Test 1', parentroleId = salesManagerRole1.Id);
+		UserRole salesRepRole2 = New UserRole(Name = 'Sales Rep Test 2', parentroleId = salesManagerRole1.Id);
+		UserRole salesRepRole3 = New UserRole(Name = 'Sales Rep Test 3', parentroleId = salesManagerRole2.Id);
+		insert new UserRole[]{salesRepRole1, salesRepRole2, salesRepRole3};
 
 		// Then, insert 2 users with Sales Manager role, and 3 sales rep, 2 reporting to the first sales manager, 1 to the other one
 		User salesManager1 = createUser(1, 'SalesManagerOne','Sales', salesManagerRole1);
@@ -31,11 +34,6 @@ private with sharing class MyTeamOrdersController_Test {
 			Account account21 = new Account(Name = 'Account Two One', Revenue__c = 20);
 			insert new Account[] {account11, account21};
 		}
-		// POUR DEBUG DEBUT
-		System.debug('CLE1 salesRep1 Id:' + salesRep1.Id);
-		Account tempAccount = [SELECT OwnerId FROM Account WHERE Name='Account One One'];
-		System.debug('CLE2 Compte du SalesRep1 Owner:' + tempAccount.OwnerId);
-		// POUR DEBUG FIN
 		System.runAs(salesRep2) {
 			Account account12 = new Account(Name = 'Account One One', Revenue__c = 100);
 			Account account22 = new Account(Name = 'Account Two One', Revenue__c = 200);
